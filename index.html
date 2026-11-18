@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6KER – Terézvárosi Közéleti & Technológiai Blog</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Marked.js a Markdown valós idejű rendereléséhez -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brandRed: '#C82825',
+                        brandGray: '#3D3D3D',
+                        brandYellow: '#F6DF91',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Letisztult tipográfia a renderelt Markdown tartalomhoz */
+        .prose-custom h1 { font-size: 2rem; font-weight: 800; line-height: 1.2; margin-bottom: 1rem; color: #111827; letter-spacing: -0.025em; }
+        .prose-custom h2 { font-size: 1.4rem; font-weight: 700; line-height: 1.3; margin-top: 2rem; margin-bottom: 0.75rem; color: #1F2937; letter-spacing: -0.015em; }
+        .prose-custom h3 { font-size: 1.15rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #374151; }
+        .prose-custom p { font-size: 1.05rem; line-height: 1.75; margin-bottom: 1.25rem; color: #374151; }
+        .prose-custom ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.25rem; color: #374151; }
+        .prose-custom ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1.25rem; color: #374151; }
+        .prose-custom li { margin-bottom: 0.5rem; line-height: 1.7; }
+        .prose-custom strong { font-weight: 600; color: #111827; }
+        .prose-custom blockquote { border-left: 3px solid #C82825; padding-left: 1rem; font-style: italic; color: #4B5563; background: #FAFAFA; padding-top: 0.5rem; padding-bottom: 0.5rem; border-radius: 0 0.5rem 0.5rem 0; margin-bottom: 1.25rem; }
+        .prose-custom code { font-family: 'JetBrains Mono', monospace; background: #F3F4F6; padding: 0.15rem 0.35rem; border-radius: 0.25rem; font-size: 0.875rem; color: #C82825; }
+        
+        /* Finom görgetősáv */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #F9FAFB; }
+        ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+    </style>
+</head>
+<body class="bg-white text-gray-900 font-sans antialiased selection:bg-red-100 selection:text-red-900">
+
+    <!-- Értesítési sáv (alert() helyett) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Fejléc -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+            <!-- 6KER Logó (A feltöltött kép pontos vektorizált mása) -->
+            <a href="#" onclick="switchView('home'); return false;" class="flex items-center gap-3 group focus:outline-none" aria-label="6KER Főoldal">
+                <svg class="h-11 w-auto transition-transform duration-200 group-hover:scale-[1.02]" viewBox="0 0 270 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Piros 6-os szám -->
+                    <path d="M58.5 14.5C53.2 12.8 47.4 12 41.2 12C19.8 12 6 27.6 6 53.4C6 76.2 18.8 89 37.8 89C55.4 89 67.5 76.8 67.5 60.2C67.5 44.8 56.8 34.4 41.5 34.4C33.4 34.4 26.6 37.6 22.4 42.8C23.5 30.2 31.2 23.8 42.5 23.8C47.5 23.8 52.2 24.8 56.2 26.5L58.5 14.5ZM37.5 77.6C26.8 77.6 20.5 69.8 20.5 59.8C20.5 50.2 27.2 44.8 37.2 44.8C47.4 44.8 53.5 51.2 53.5 60.6C53.5 70.6 46.8 77.6 37.5 77.6Z" fill="#C82825"/>
+                    <!-- Sárga Terézváros kerület sziluett a 6-os alsó hurkában -->
+                    <path d="M26 73.5L26 57.5L36.5 47.5L40 50.5L44.5 46L53.5 55.5L26 73.5Z" fill="#F6DF91"/>
+                    <!-- Sötétszürke KER felirat -->
+                    <path d="M84 14H99.5V47.5L131.5 14H150.5L117.5 47.2L152.5 87H133L106.5 56.8L99.5 63.8V87H84V14Z" fill="#3D3D3D"/>
+                    <path d="M161 14H211V26.8H176.5V43.5H206.5V56H176.5V74.2H212V87H161V14Z" fill="#3D3D3D"/>
+                    <path d="M223.5 14H252.5C266.8 14 275.5 21.8 275.5 34.5C275.5 44.2 270.2 51.2 261.2 53.8L277.5 87H260.2L245.8 55.8H239V87H223.5V14ZM251.2 44.2C257.8 44.2 261.5 40.5 261.5 34.8C261.5 29.1 257.8 25.6 251.2 25.6H239V44.2H251.2Z" fill="#3D3D3D" transform="scale(0.94, 1) translate(14, 0)"/>
+                </svg>
+                <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-mono bg-gray-100 text-gray-600 border border-gray-200">
+                    git-cms
+                </span>
+            </a>
+
+            <!-- Minimalista navigáció -->
+            <nav class="flex items-center gap-1 sm:gap-2">
+                <button onclick="switchView('home')" id="nav-home" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium text-gray-900 bg-gray-100 transition-colors">
+                    Főoldal
+                </button>
+                <button onclick="switchView('repo')" id="nav-repo" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                    <span>Archívum / Repo</span>
+                </button>
+                <button onclick="switchView('about')" id="nav-about" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">
+                    Névjegy
+                </button>
+                <div class="h-5 w-px bg-gray-200 mx-1 hidden sm:block"></div>
+                <button onclick="openEditorModal()" class="px-3.5 py-2 rounded-lg text-sm font-medium bg-brandRed text-white hover:bg-red-700 transition-all shadow-sm flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <span class="hidden md:inline">Új poszt (.md)</span>
+                    <span class="md:hidden">.md</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- GitHub Repository Status Bar (Headless CMS kontextus) -->
+    <div class="bg-gray-50/80 border-b border-gray-100">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500 font-mono">
+            <div class="flex items-center gap-2 overflow-x-auto">
+                <span class="inline-flex items-center gap-1 text-gray-700 font-medium">
+                    <svg class="w-3.5 h-3.5 text-gray-600" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                    6ker-blog / content / posts
+                </span>
+                <span>/</span>
+                <span id="breadcrumb-file" class="text-brandRed font-medium truncate">2026-11-18-miert-rossz-irany-az-ai-tiltas.md</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="inline-flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span>main branch • szinkronizálva</span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fő tartalmi konténer -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+
+        <!-- 1. NÉZET: FŐOLDAL (Cikk olvasó + Oldalsáv mappastruktúrával) -->
+        <div id="view-home" class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            
+            <!-- Bal / Fő oszlop: Aktuális bejegyzés megjelenítése -->
+            <article class="lg:col-span-8">
+                <!-- Cikk fejléc metaadatok és nézetváltó (Renderelt vs. Nyers .md) -->
+                <div class="flex flex-wrap items-center justify-between gap-3 pb-6 mb-6 border-b border-gray-100">
+                    <div class="flex items-center gap-3 text-xs font-mono text-gray-500">
+                        <span id="article-date" class="px-2.5 py-1 rounded-md bg-gray-100 text-gray-700 font-medium">2026-11-18</span>
+                        <span id="article-category" class="px-2.5 py-1 rounded-md bg-red-50 text-brandRed font-medium">Önkormányzat & Tech</span>
+                        <span id="article-readtime">5 perc olvasás</span>
+                    </div>
+
+                    <!-- Renderelt / Raw Markdown kapcsoló -->
+                    <div class="inline-flex rounded-lg bg-gray-100 p-1 border border-gray-200/60">
+                        <button onclick="setMarkdownMode('rendered')" id="btn-mode-rendered" class="px-3 py-1 rounded-md text-xs font-medium bg-white text-gray-900 shadow-sm transition-all">
+                            Olvasó nézet
+                        </button>
+                        <button onclick="setMarkdownMode('raw')" id="btn-mode-raw" class="px-3 py-1 rounded-md text-xs font-mono font-medium text-gray-600 hover:text-gray-900 transition-all">
+                            Raw .md
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Renderelt Markdown tartalom -->
+                <div id="article-rendered" class="prose-custom"></div>
+
+                <!-- Nyers Markdown forráskód nézet -->
+                <div id="article-raw" class="hidden">
+                    <div class="rounded-xl border border-gray-200 bg-gray-50 overflow-hidden">
+                        <div class="px-4 py-2.5 bg-gray-100 border-b border-gray-200 flex items-center justify-between">
+                            <span id="raw-filename-label" class="text-xs font-mono text-gray-600">content/posts/2026-11-18-miert-rossz-irany-az-ai-tiltas.md</span>
+                            <button onclick="copyRawMarkdown()" class="text-xs font-medium text-gray-700 hover:text-brandRed flex items-center gap-1 px-2 py-1 rounded hover:bg-white transition-colors">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                Másolás
+                            </button>
+                        </div>
+                        <pre id="raw-content-pre" class="p-4 sm:p-6 text-xs sm:text-sm font-mono text-gray-800 overflow-x-auto leading-relaxed whitespace-pre-wrap"></pre>
+                    </div>
+                </div>
+
+                <!-- Cikk lábléc: Git commit info & megosztás -->
+                <div class="mt-12 pt-6 border-t border-gray-100 flex flex-wrap items-center justify-between gap-4 text-xs text-gray-500">
+                    <div class="font-mono flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded bg-gray-100 text-gray-600">commit 8f4a21c</span>
+                        <span>Szerző: <strong class="text-gray-700 font-sans">6KER Szerkesztőség</strong></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="downloadCurrentMarkdown()" class="px-3 py-1.5 rounded-lg border border-gray-200 hover:border-gray-300 text-gray-700 font-medium transition-colors flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            .md letöltése
+                        </button>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Jobb oldalsáv: Git-alapú mappastruktúra és bejegyzéslista -->
+            <aside class="lg:col-span-4 space-y-6">
+                <!-- Repository Fa struktúra kártya -->
+                <div class="rounded-2xl border border-gray-200/80 bg-white p-5 shadow-sm">
+                    <div class="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
+                        <h2 class="text-xs font-mono font-semibold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                            content / posts /
+                        </h2>
+                        <span id="post-count-badge" class="text-xs font-mono px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">2 fájl</span>
+                    </div>
+
+                    <!-- Dátum alapú .md fájlok listája -->
+                    <ul id="sidebar-file-list" class="space-y-1.5">
+                        <!-- JS tölti fel dinamikusan -->
+                    </ul>
+
+                    <div class="mt-4 pt-3 border-t border-gray-100">
+                        <button onclick="openEditorModal()" class="w-full py-2 px-3 rounded-xl border border-dashed border-gray-300 text-xs font-medium text-gray-600 hover:text-brandRed hover:border-brandRed transition-colors flex items-center justify-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Új dátumozott .md fájl tesztelése
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Headless CMS architektúra infóbox -->
+                <div class="rounded-2xl border border-gray-100 bg-gray-50/70 p-5">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-2">Hogyan működik a 6KER CMS?</h3>
+                    <p class="text-xs text-gray-600 leading-relaxed mb-3">
+                        Nincs nehézkes adatbázis: minden bejegyzés egy önálló, dátummal ellátott Markdown (<code class="text-brandRed font-mono">.md</code>) fájl a GitHub repository <code class="font-mono text-gray-800">/content/posts/</code> mappájában.
+                    </p>
+                    <div class="text-xs font-mono text-gray-500 bg-white p-2.5 rounded-lg border border-gray-200/70">
+                        YYYY-MM-DD-cim-slug.md
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- 2. NÉZET: ARCHÍVUM / GITHUB REPOSITORY NÉZET -->
+        <div id="view-repo" class="hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Repository & Archívum</h1>
+                    <p class="text-sm text-gray-500 mt-1">A <code class="font-mono text-gray-700">/content/posts/</code> könyvtárban tárolt összes Markdown dokumentum.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <label class="cursor-pointer px-3.5 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs font-medium text-gray-700 transition-colors flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        <span>Helyi .md fájl betöltése</span>
+                        <input type="file" accept=".md,.markdown,.txt" class="hidden" onchange="handleLocalFileUpload(event)">
+                    </label>
+                    <button onclick="openEditorModal()" class="px-3.5 py-2 rounded-lg bg-brandRed text-white text-xs font-medium hover:bg-red-700 transition-colors">
+                        + Új .md létrehozása
+                    </button>
+                </div>
+            </div>
+
+            <!-- GitHub-szerű fájltáblázat -->
+            <div class="rounded-2xl border border-gray-200 overflow-hidden bg-white shadow-sm">
+                <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between text-xs font-mono text-gray-600">
+                    <span>📁 6ker-blog / content / posts</span>
+                    <span id="repo-total-files">2 fájl</span>
+                </div>
+                <div id="repo-table-body" class="divide-y divide-gray-100">
+                    <!-- JS tölti fel -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. NÉZET: NÉVJEGY -->
+        <div id="view-about" class="hidden max-w-3xl mx-auto space-y-6">
+            <div class="rounded-2xl border border-gray-200 p-6 sm:p-8 bg-white shadow-sm">
+                <span class="inline-block px-2.5 py-1 rounded-md bg-red-50 text-brandRed text-xs font-mono font-medium mb-3">README.md</span>
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">A 6KER projektről</h1>
+                <p class="text-gray-600 leading-relaxed mb-4">
+                    A <strong>6KER</strong> egy független terézvárosi közéleti, várospolitikai és technológiai blog. Célunk, hogy nyílt, adatalapú és előremutató vitákat indítsunk Budapest VI. kerületének jövőjéről, modernizációjáról és digitális fejlődéséről.
+                </p>
+                <h2 class="text-lg font-semibold text-gray-900 mt-6 mb-2">Nyílt Git-alapú publikálás (Headless CMS)</h2>
+                <p class="text-gray-600 leading-relaxed mb-4">
+                    Hiszünk az átláthatóságban nemcsak a kerületvezetésben, hanem a tartalomgyártásban is. A blog motorja közvetlenül GitHub repository-ban tárolt, szabványos <code class="font-mono text-sm bg-gray-100 px-1.5 py-0.5 rounded">YYYY-MM-DD-cim.md</code> fájlokból dolgozik, így minden cikk verziókövetett és könnyen auditálható.
+                </p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Lábléc -->
+    <footer class="border-t border-gray-100 mt-16 py-8 bg-gray-50/40">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+            <div class="flex items-center gap-2">
+                <span class="font-bold text-gray-800">6KER</span>
+                <span>• Terézvárosi Közéleti & Tech Blog</span>
+            </div>
+            <div class="font-mono">
+                Powered by Markdown & Git Headless Architecture
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODÁLIS ABLAK: Új poszt (.md) hozzáadása / Élő Markdown előnézet -->
+    <div id="editor-modal" class="fixed inset-0 z-50 hidden bg-gray-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
+            <!-- Modal fejléc -->
+            <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/70">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-brandRed"></span>
+                    <h3 class="text-sm font-semibold text-gray-900">Új Markdown bejegyzés (.md) létrehozása és előnézete</h3>
+                </div>
+                <button onclick="closeEditorModal()" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Fájlnév és metaadat sáv -->
+            <div class="px-5 py-3 bg-white border-b border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-[11px] font-mono text-gray-500 mb-1">Fájlnév (dátum-slug.md)</label>
+                    <input type="text" id="editor-filename" value="2026-11-19-uj-terezvarosi-otlet.md" class="w-full px-3 py-1.5 text-xs font-mono rounded-lg border border-gray-200 focus:outline-none focus:border-brandRed">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-mono text-gray-500 mb-1">Kategória</label>
+                    <input type="text" id="editor-category" value="Városfejlesztés" class="w-full px-3 py-1.5 text-xs rounded-lg border border-gray-200 focus:outline-none focus:border-brandRed">
+                </div>
+                <div class="flex items-end">
+                    <label class="w-full cursor-pointer px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs font-medium text-gray-700 text-center transition-colors">
+                        📂 Betöltés számítógépről (.md)
+                        <input type="file" accept=".md,.markdown,.txt" class="hidden" onchange="loadFileIntoEditor(event)">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Osztott szerkesztő és élő előnézet -->
+            <div class="flex-1 grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200 overflow-hidden min-h-[340px]">
+                <!-- Bal: Markdown szerkesztő -->
+                <div class="flex flex-col h-full overflow-hidden">
+                    <div class="px-4 py-1.5 bg-gray-50 border-b border-gray-100 text-[11px] font-mono text-gray-500">
+                        MARKDOWN FORRÁS
+                    </div>
+                    <textarea id="editor-textarea" oninput="updateLivePreview()" class="flex-1 w-full p-4 font-mono text-xs sm:text-sm text-gray-800 resize-none focus:outline-none leading-relaxed" placeholder="# Cikk címe..."></textarea>
+                </div>
+
+                <!-- Jobb: Élő HTML előnézet -->
+                <div class="flex flex-col h-full overflow-hidden bg-white">
+                    <div class="px-4 py-1.5 bg-gray-50 border-b border-gray-100 text-[11px] font-mono text-gray-500">
+                        ÉLŐ ELŐNÉZET
+                    </div>
+                    <div id="editor-preview" class="flex-1 p-5 overflow-y-auto prose-custom text-sm"></div>
+                </div>
+            </div>
+
+            <!-- Modal lábléc -->
+            <div class="px-5 py-3.5 border-t border-gray-100 bg-gray-50/70 flex items-center justify-between gap-3">
+                <span class="text-xs text-gray-500 hidden sm:inline">A mentés hozzáadja a fájlt a virtuális <code class="font-mono">/content/posts/</code> mappához.</span>
+                <div class="flex items-center gap-2 ml-auto">
+                    <button onclick="closeEditorModal()" class="px-4 py-2 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-200/70 transition-colors">
+                        Mégse
+                    </button>
+                    <button onclick="saveNewMarkdownPost()" class="px-4 py-2 rounded-lg text-xs font-medium bg-brandRed text-white hover:bg-red-700 transition-colors shadow-sm">
+                        Commit & Publikálás
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Kezdeti Markdown fájlok szimulált GitHub repository struktúrában (/content/posts/)
+        const initialPosts = [
+            {
+                filename: '2026-11-18-miert-rossz-irany-az-ai-tiltas.md',
+                date: '2026-11-18',
+                category: 'Önkormányzat & Tech',
+                readTime: '5 perc olvasás',
+                commitMsg: 'feat(posts): első cikk a terézvárosi AI-tiltásról',
+                content: `# Miért zsákutca a teljes AI-tiltás a terézvárosi önkormányzatban?
+
+Soproni Tamás, Terézváros polgármestere a közelmúltban úgy döntött, hogy **betiltja a mesterséges intelligencia (AI) alapú eszközök használatát** az önkormányzati hivatalban. Bár a döntés mögött vélhetően adatvédelmi és hitelességi megfontolások húzódnak meg, a **6KER** szerkesztősége szerint a teljes tiltás nemcsak életszerűtlen, hanem kifejezetten hátrányos a VI. kerületi lakosok számára is.
+
+> „A technológiai fejlődést nem lehet önkormányzati rendeletekkel megállítani – legfeljebb annyit érünk el vele, hogy a hivatal lemarad, miközben a világ elmegy mellette.”
+
+Íme az **öt legfontosabb érv**, amiért a tiltás helyett a szabályozott, tudatos integráció lenne a helyes irány Terézvárosban:
+
+## 1. Lassabb és körülményesebb lakossági ügyintézés
+A modern generatív nyelvi modellek és automatizált szövegfeldolgozó rendszerek kiválóan alkalmasak a hivatalos dokumentumok összefoglalására, a lakossági beadványok előszűrésére, valamint a közérthető tájékoztatók megfogalmazására. A tiltással az ügyintézőktől olyan eszközt vesznek el, amely **órákkal rövidíthetné le az adminisztrációt**, így kevesebb idő marad a valódi, személyes lakossági problémák megoldására.
+
+## 2. Az „árnyék-AI” (Shadow AI) jelenség felerősödése
+A vállalati és közigazgatási IT-biztonsági tapasztalatok egyértelműen mutatják: ha egy munkahelyen kategorikusan betiltanak egy hatékonyságnövelő eszközt, a dolgozók nem felhagynak a használatával, hanem **saját telefonjukon, privát fiókokon keresztül** kezdik el használni azt. Ez sokkal súlyosabb adatvédelmi kockázatot jelent, mint egy zárt, intézményi keretek között üzemeltetett rendszer.
+
+## 3. Van biztonságos, GDPR-kompatibilis megoldás
+Az adatvédelmi aggályok jogosak, de a válasz nem a tiltás, hanem a megfelelő technológiai keretrendszer. Ma már elérhetők olyan **vállalati és önkormányzati előfizetések** (például zárt felhőkörnyezetben futó modellek), amelyek garantálják, hogy a bevitt adatok nem kerülnek be a nyilvános tanítóadatbázisokba, és teljes mértékben megfelelnek az európai uniós GDPR-előírásoknak.
+
+## 4. Versenyképesség és munkaerő-megtartás
+Egy belvárosi önkormányzatnak a versenyszférával kell versenyeznie a jól képzett, fiatal szakemberekért. Ha a hivatal digitális eszköztára mesterségesen a múlt évtized szintjén marad, az hosszú tengeren rontja az intézmény vonzerejét, és megnehezíti a modern közigazgatási szemlélet meghonosítását.
+
+## 5. Nemzetközi és hazai jó gyakorlatok figyelmen kívül hagyása
+Számos európai nagyváros és kerület – Bécstől Tallinnig – már külön **AI-etikai és használati irányelveket** dolgozott ki a köztisztviselők számára. Ezek az önkormányzatok oktatással, világos szabályokkal (például: *mit szabad és mit tilos feltölteni, kötelező emberi felülvizsgálat*) támogatják a munkatársakat ahelyett, hogy adminisztratív falakat húznának.
+
+---
+
+### Merre tovább, Terézváros?
+A teljes tiltás helyett a VI. kerületnek egy **átlátható, biztonságos AI-használati protokollra** és a hivatali dolgozók képzésére lenne szüksége. Terézváros akkor tud valóban modern, élhető és XXI. századi kerület maradni, ha az innovációt nem ellenségként, hanem a lakosságot szolgáló eszközként kezeli.`
+            },
+            {
+                filename: '2026-11-15-headless-cms-architektura-6ker.md',
+                date: '2026-11-15',
+                category: 'Technológia',
+                readTime: '3 perc olvasás',
+                commitMsg: 'docs: blog struktúra és headless CMS működése',
+                content: `# Miért választottunk Git-alapú Headless CMS struktúrát?
+
+A **6KER** blog fejlesztésekor az egyszerűség, a sebesség és az átláthatóság volt az elsődleges szempont. Ahelyett, hogy egy nehézkes, sérülékeny adatbázis-alapú rendszert építettünk volna, a tartalmakat közvetlenül verziókövetett Markdown fájlokban tároljuk.
+
+## A mappastruktúra előnyei
+* **Dátumalapú rendezés:** A \`YYYY-MM-DD-cim.md\` elnevezési konvenció azonnal átláthatóvá teszi az archívumot.
+* **Verziókövetés:** Minden módosítás nyomon követhető a Git történetben.
+* **Hordozhatóság:** A tiszta Markdown formátum bármikor migráció nélkül felhasználható más felületeken is.`
+            }
+        ];
+
+        // Állapotkezelés
+        let posts = [...initialPosts];
+        let currentPostIndex = 0;
+        let markdownViewMode = 'rendered'; // 'rendered' vagy 'raw'
+
+        // Markdown parser beállítása
+        marked.setOptions({
+            breaks: true,
+            gfm: true
+        });
+
+        // Oldal betöltésekor inicializálás
+        window.addEventListener('DOMContentLoaded', () => {
+            renderSidebarList();
+            renderRepoTable();
+            loadPost(0);
+        });
+
+        // Értesítés megjelenítése (alert helyett)
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'bg-gray-900 text-white text-xs font-medium px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 transition-all duration-300 opacity-0 translate-y-2';
+            toast.innerHTML = `<span class="w-2 h-2 rounded-full bg-brandRed"></span><span>${message}</span>`;
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('opacity-0', 'translate-y-2');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Nézetváltó (Főoldal / Repo Archívum / Névjegy)
+        function switchView(viewName) {
+            ['home', 'repo', 'about'].forEach(v => {
+                document.getElementById(`view-${v}`).classList.add('hidden');
+                const btn = document.getElementById(`nav-${v}`);
+                if (btn) {
+                    btn.classList.remove('bg-gray-100', 'text-gray-900');
+                    btn.classList.add('text-gray-600');
+                }
+            });
+
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${viewName}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-gray-100', 'text-gray-900');
+                activeBtn.classList.remove('text-gray-600');
+            }
+        }
+
+        // Adott poszt betöltése a fő olvasóba
+        function loadPost(index) {
+            if (index < 0 || index >= posts.length) return;
+            currentPostIndex = index;
+            const post = posts[index];
+
+            // Metaadatok és útvonal frissítése
+            document.getElementById('breadcrumb-file').textContent = post.filename;
+            document.getElementById('article-date').textContent = post.date;
+            document.getElementById('article-category').textContent = post.category;
+            document.getElementById('article-readtime').textContent = post.readTime;
+            document.getElementById('raw-filename-label').textContent = `content/posts/${post.filename}`;
+
+            // Renderelt és Raw tartalom frissítése
+            document.getElementById('article-rendered').innerHTML = marked.parse(post.content);
+            document.getElementById('raw-content-pre').textContent = post.content;
+
+            renderSidebarList();
+            switchView('home');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Olvasó nézet / Raw .md váltása
+        function setMarkdownMode(mode) {
+            markdownViewMode = mode;
+            const renderedEl = document.getElementById('article-rendered');
+            const rawEl = document.getElementById('article-raw');
+            const btnRendered = document.getElementById('btn-mode-rendered');
+            const btnRaw = document.getElementById('btn-mode-raw');
+
+            if (mode === 'rendered') {
+                renderedEl.classList.remove('hidden');
+                rawEl.classList.add('hidden');
+                btnRendered.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+                btnRendered.classList.remove('text-gray-600');
+                btnRaw.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+                btnRaw.classList.add('text-gray-600');
+            } else {
+                renderedEl.classList.add('hidden');
+                rawEl.classList.remove('hidden');
+                btnRaw.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+                btnRaw.classList.remove('text-gray-600');
+                btnRendered.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+                btnRendered.classList.add('text-gray-600');
+            }
+        }
+
+        // Oldalsáv mappastruktúra renderelése
+        function renderSidebarList() {
+            const listEl = document.getElementById('sidebar-file-list');
+            document.getElementById('post-count-badge').textContent = `${posts.length} fájl`;
+
+            listEl.innerHTML = posts.map((post, idx) => {
+                const isActive = idx === currentPostIndex;
+                return `
+                    <li>
+                        <button onclick="loadPost(${idx})" class="w-full text-left px-3 py-2.5 rounded-xl transition-all flex items-start gap-2.5 ${isActive ? 'bg-red-50/80 border border-red-100 text-gray-900' : 'hover:bg-gray-50 text-gray-600 border border-transparent'}">
+                            <svg class="w-4 h-4 mt-0.5 shrink-0 ${isActive ? 'text-brandRed' : 'text-gray-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <div class="min-w-0 flex-1">
+                                <div class="text-xs font-mono truncate ${isActive ? 'font-semibold text-brandRed' : 'text-gray-800'}">
+                                    ${post.filename}
+                                </div>
+                                <div class="text-[11px] text-gray-400 mt-0.5 flex items-center gap-2">
+                                    <span>${post.date}</span>
+                                    <span>•</span>
+                                    <span>${post.category}</span>
+                                </div>
+                            </div>
+                        </button>
+                    </li>
+                `;
+            }).join('');
+        }
+
+        // GitHub Repository táblázat renderelése
+        function renderRepoTable() {
+            const tbody = document.getElementById('repo-table-body');
+            document.getElementById('repo-total-files').textContent = `${posts.length} fájl`;
+
+            tbody.innerHTML = posts.map((post, idx) => `
+                <div onclick="loadPost(${idx})" class="px-4 py-3.5 hover:bg-gray-50 cursor-pointer transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <span class="font-mono text-xs sm:text-sm font-medium text-gray-800 hover:text-brandRed truncate">${post.filename}</span>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs text-gray-500 pl-7 sm:pl-0 shrink-0">
+                        <span class="hidden md:inline text-gray-400 font-mono truncate max-w-[220px]">${post.commitMsg}</span>
+                        <span class="font-mono bg-gray-100 px-2 py-0.5 rounded text-gray-600">${post.date}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Nyers Markdown másolása vágólapra
+        function copyRawMarkdown() {
+            const text = posts[currentPostIndex].content;
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Nyers Markdown másolva a vágólapra!');
+            } catch (err) {
+                showToast('Nem sikerült a másolás.');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // Aktuális .md fájl letöltése
+        function downloadCurrentMarkdown() {
+            const post = posts[currentPostIndex];
+            const blob = new Blob([post.content], { type: 'text/markdown;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = post.filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast(`${post.filename} letöltése elindult.`);
+        }
+
+        // Szerkesztő modális ablak vezérlése
+        function openEditorModal() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('editor-filename').value = `${today}-uj-bejegyzes.md`;
+            document.getElementById('editor-textarea').value = `# Új terézvárosi bejegyzés címe\n\nIde írhatod a bevezető gondolatokat **Markdown** formátumban.\n\n## Miért fontos ez?\n* Első szempont\n* Második szempont\n\n> Idézet vagy kiemelt megállapítás a cikkből.`;
+            updateLivePreview();
+            document.getElementById('editor-modal').classList.remove('hidden');
+        }
+
+        function closeEditorModal() {
+            document.getElementById('editor-modal').classList.add('hidden');
+        }
+
+        function updateLivePreview() {
+            const raw = document.getElementById('editor-textarea').value;
+            document.getElementById('editor-preview').innerHTML = marked.parse(raw);
+        }
+
+        // Új Markdown poszt mentése a helyi listába
+        function saveNewMarkdownPost() {
+            let filename = document.getElementById('editor-filename').value.trim();
+            const category = document.getElementById('editor-category').value.trim() || 'Közélet';
+            const content = document.getElementById('editor-textarea').value.trim();
+
+            if (!filename) {
+                showToast('Kérlek adj meg egy fájlnevet!');
+                return;
+            }
+            if (!filename.endsWith('.md')) {
+                filename += '.md';
+            }
+            if (!content) {
+                showToast('A Markdown tartalom nem lehet üres!');
+                return;
+            }
+
+            // Dátum kinyerése a fájlnév elejéről (YYYY-MM-DD), ha van
+            const dateMatch = filename.match(/^(\d{4}-\d{2}-\d{2})/);
+            const date = dateMatch ? dateMatch[1] : new Date().toISOString().split('T')[0];
+            const words = content.split(/\s+/).length;
+            const readTime = `${Math.max(1, Math.ceil(words / 180))} perc olvasás`;
+
+            posts.unshift({
+                filename,
+                date,
+                category,
+                readTime,
+                commitMsg: `feat(posts): add ${filename}`,
+                content
+            });
+
+            renderSidebarList();
+            renderRepoTable();
+            loadPost(0);
+            closeEditorModal();
+            showToast(`Sikeres commit: ${filename}`);
+        }
+
+        // Helyi .md fájl feltöltése közvetlenül az archívumból
+        function handleLocalFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const filename = file.name.endsWith('.md') ? file.name : `${file.name}.md`;
+                const dateMatch = filename.match(/^(\d{4}-\d{2}-\d{2})/);
+                const date = dateMatch ? dateMatch[1] : new Date().toISOString().split('T')[0];
+
+                posts.unshift({
+                    filename,
+                    date,
+                    category: 'Feltöltött .md',
+                    readTime: '3 perc olvasás',
+                    commitMsg: `upload: ${filename}`,
+                    content
+                });
+
+                renderSidebarList();
+                renderRepoTable();
+                loadPost(0);
+                showToast(`Fájl betöltve: ${filename}`);
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // Helyi .md fájl betöltése a szerkesztőbe
+        function loadFileIntoEditor(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('editor-filename').value = file.name;
+                document.getElementById('editor-textarea').value = e.target.result;
+                updateLivePreview();
+                showToast(`${file.name} betöltve a szerkesztőbe.`);
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+    </script>
+</body>
+</html>
